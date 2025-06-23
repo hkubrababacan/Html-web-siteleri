@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dönem Notu Hesaplama</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #2E5077;
+            color: yellow;
+            font-family: Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 6vw;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        label {
+            font-size: 5vw;
+        }
+        input {
+            font-size: 5vw;
+            padding: 10px;
+            margin: 10px 0 20px 0;
+            width: 80%;
+            text-align: center;
+        }
+        button {
+            font-size: 5vw;
+            padding: 10px 20px;
+            margin-bottom: 30px;
+            background-color: yellow;
+            color: #2E5077;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .sonuc {
+            font-size: 5vw;
+            margin: 10px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dönem Notu Hesapla</h1>
+
+    <label for="vize">Vize Notu:</label>
+    <input type="number" id="vize" placeholder="0 - 100">
+
+    <label for="final">Final Notu:</label>
+    <input type="number" id="final" placeholder="0 - 100">
+
+    <button onclick="hesapla()">Hesapla</button>
+
+    <div class="sonuc" id="donemNotu">Dönem Notu: </div>
+    <div class="sonuc" id="basariDurumu">Başarı Durumu: </div>
+    <div class="sonuc" id="harfNotu">Harf Notu: </div>
+
+    <script>
+        function hesapla() {
+            let vize = parseFloat(document.getElementById("vize").value);
+            let final = parseFloat(document.getElementById("final").value);
+
+            if (isNaN(vize) || isNaN(final)) {
+                alert("Lütfen geçerli sayılar girin!");
+                return;
+            }
+
+            let donemNotu = (vize * 0.4) + (final * 0.6);
+            document.getElementById("donemNotu").innerText = `Dönem Notu: ${donemNotu.toFixed(2)}`;
+
+            let basari = (donemNotu >= 50 && final >= 50) ? "Başarılı" : "Başarısız";
+            document.getElementById("basariDurumu").innerText = `Başarı Durumu: ${basari}`;
+
+            let harf;
+            if (donemNotu >= 90) harf = "AA";
+            else if (donemNotu >= 85) harf = "BA";
+            else if (donemNotu >= 80) harf = "BB";
+            else if (donemNotu >= 70) harf = "CB";
+            else if (donemNotu >= 60) harf = "CC";
+            else if (donemNotu >= 55) harf = "DC";
+            else if (donemNotu >= 50) harf = "DD";
+            else harf = "FF";
+
+            document.getElementById("harfNotu").innerText = `Harf Notu: ${harf}`;
+        }
+    </script>
+</body>
+</html>
