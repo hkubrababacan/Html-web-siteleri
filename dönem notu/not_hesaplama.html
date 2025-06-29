@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dönem Notu Hesaplama Kübra Edition</title>
+    <style>
+        body {
+            background-color: #ecddb0;
+            color: rgb(40, 35, 74);
+            font-family: Verdan, sans-serif;
+            text-align: center;
+            padding: 30px;
+        }
+        input, button {
+            font-size: 12px;
+            margin: 10px;
+            padding: 5px;
+            
+        }
+        .sonuc {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+    </head>
+<body>
+    <h1>Dönem Notu Hesaplama</h1>
+    
+    <label for="vize">Vize Notu:</label>
+    <input type="number" id="vize" placeholder="                 0-100"><br>
+
+    <label for="final">Final Notu:</label>
+    <input type="number" id="final" placeholder="                 0-100"><br>
+
+    <button onclick="hesapla()">Hesapla</button>
+
+    <div class="sonuc" id="donemNotu">Dönem Notu: </div>
+    <div class="sonuc" id="basariDurumu">Başarı Durumu: </div>
+    <div class="sonuc" id="harfNotu">Harf Notu: </div>
+
+    <script>
+        function hesapla() {
+            let vize = parseFloat(document.getElementById("vize").value);
+            let final = parseFloat(document.getElementById("final").value);
+
+            if (isNaN(vize) || isNaN(final)) {
+                alert("Lütfen geçerli sayılar girin!");
+                return;
+            }
+
+            let donemNotu = (vize * 0.4) + (final * 0.6);
+            document.getElementById("donemNotu").innerText = `Dönem Notu: ${donemNotu.toFixed(2)}`;
+
+            if (donemNotu > 100 || final > 100 || vize >100) {
+                document.getElementById("basariDurumu").innerText = "GEÇERSİZ NOT GİRİLDİ";
+            }
+            else if (donemNotu >= 50 && final >= 50) {
+                document.getElementById("basariDurumu").innerText = "Başarı Durumu: Başarılı";
+            } else {
+                document.getElementById("basariDurumu").innerText = "Başarı Durumu: Başarısız";
+            }
+
+            let harf;
+            if (donemNotu > 100)  harf = "GEÇERSİZ NOT GİRİLDİ"
+            else if (donemNotu >= 90) harf = "AA";
+            else if (donemNotu >= 85) harf = "BA";
+            else if (donemNotu >= 80) harf = "BB";
+            else if (donemNotu >= 70) harf = "CB";
+            else if (donemNotu >= 60) harf = "CC";
+            else if (donemNotu >= 55) harf = "DC";
+            else if (donemNotu >= 50) harf = "DD";
+            else harf = "FF";
+
+            document.getElementById("harfNotu").innerText = `Harf Notu: ${harf}`;
+        }
+    </script>
+</body>
+</html>
