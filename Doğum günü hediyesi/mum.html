@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pasta ve Mum</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      color: white;
+      font-family: sans-serif;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    #app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      text-align: center;
+    }
+
+    #cake-wrapper {
+      position: relative;
+      width: 320px;
+      max-width: 90vw;
+    }
+
+    .cake-image {
+      width: 100%;
+      display: block;
+    }
+
+    .flame {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      pointer-events: none;
+      animation: flicker 0.2s infinite alternate;
+    }
+
+    .flame img {
+      width: 110%;
+      height: 110%;
+      object-fit: contain;
+    }
+
+    #flame2 {
+      top: 25px;
+      left: 38px;
+      width: 20px;      /* ↓ daha küçük */
+      height: 20px;
+    }
+
+
+    /* Mum pozisyonlarına göre alevlerin yerleşimi */
+    #flame1 { top: 47px; left: 98px; }
+    #flame2 { top: 63px; left: 125px; }
+    #flame3 { top: 40px; left: 145px; }
+    #flame4 { top: 50px; left: 185px; }
+
+    @keyframes flicker {
+      from { transform: translateX(-1px); }
+      to { transform: translateX(1px); }
+    }
+
+    .puff {
+      animation: puffOut 0.4s forwards;
+    }
+
+    @keyframes puffOut {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+
+    #message {
+      font-size: 1.2rem;
+      margin-top: 20px;
+      min-height: 1.5em;
+    }
+
+    /* Mektup ekranı */
+    #letter {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: white url("mektup.png") no-repeat center/contain;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #222;
+      z-index: 10;
+      padding: 40px;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    #letter .text {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px 30px;
+      border-radius: 10px;
+      max-width: 90%;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    #letter h3 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    #letter p {
+      font-size: 1.2rem;
+      line-height: 1.6;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app">
+    <h2>Mumu Söndür: Üfle, Salla veya Dokun</h2>
+
+    <div id="cake-wrapper">
+      <img src="pasta1.png" alt="Pasta" class="cake-image" />
+
+      <!-- Alevler (pasta1.png üzerindeki mumlara göre hizalanmıştır) -->
+      <div class="flame" id="flame1"><img src="alev.gif" alt="Alev" /></div>
+      <div class="flame" id="flame2"><img src="alev.gif" alt="Alev" /></div>
+      <div class="flame" id="flame3"><img src="alev.gif" alt="Alev" /></div>
+      <div class="flame" id="flame4"><img src="alev.gif" alt="Alev" /></div>
+    </div>
+
+    <div id="message">Üfle, salla veya ekrana dokun.</div>
+  </div>
+
+  <!-- Mektup ekranı -->
+  <div id="letter">
+    <div class="text">
+      <h3>🎉 Tebrikler!</h3>
+      <p>Mumu başarıyla söndürdün. Bu bir oyun gibi görünse de, aslında sabrının, kararlılığının ve nefesinin gücünü gösteriyor. 👏</p>
+    </div>
+  </div>
+
+  <!-- Puf sesi -->
+  <audio id="puffSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_28b0fbc1ae.mp3"></audio>
+
+  <script>
+    const flames = [
+      document.getElementById('flame1'),
+      document.getElementById('flame2'),
+      document.getElementById('flame3'),
+      document.getElementById('flame4')
+    ];
+    const message = document.getElementById('message');
+    const letter = document.getElementById('letter');
+    const puffSound = document.getElementById('puffSound');
+    const app = document.getElementById('app');
+
+    let blowCount = 0;
+    let blowCooldown = false;
+    let ended = false;
+
+    function handleBlow() {
+      if (ended) return;
+
+      blowCount++;
+      blowCooldown = true;
+
+      if (blowCount === 1) {
+        message.textContent = "Biraz daha kuvvetli!";
+        flames.forEach(f => f.style.opacity = "0.5");
+      } else if (blowCount === 2) {
+        flames.forEach(f => f.classList.add("puff"));
+        puffSound.play().catch(() => {});
+        setTimeout(() => {
+          flames.forEach(f => f.style.display = "none");
+          message.textContent = "";
+          showLetter();
+        }, 500);
+        ended = true;
+        window.removeEventListener("devicemotion", motionHandler);
+      }
+
+      setTimeout(() => {
+        blowCooldown = false;
+      }, 1000);
+    }
+
+    function showLetter() {
+      app.style.display = "none";
+      letter.style.display = "flex";
+    }
+
+    // Ses algılama
+    async function initMic() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+        source.connect(analyser);
+        analyser.fftSize = 256;
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+        function checkVolume() {
+          analyser.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+          const avg = sum / dataArray.length;
+          if (!blowCooldown && avg > 18) handleBlow();
+          requestAnimationFrame(checkVolume);
+        }
+        checkVolume();
+        message.textContent = "Üfleyerek dene!";
+      } catch {
+        message.textContent = "Mikrofon yok. Sallayarak veya dokunarak dene.";
+        requestMotionPermission();
+      }
+    }
+
+    // Hareket algılama
+    function requestMotionPermission() {
+      if (typeof DeviceMotionEvent !== "undefined" &&
+          typeof DeviceMotionEvent.requestPermission === "function") {
+        DeviceMotionEvent.requestPermission().then(response => {
+          if (response === "granted") {
+            startMotion();
+            message.textContent = "Hareket sensörü açık!";
+          }
+        }).catch(() => {
+          message.textContent = "İzin verilmedi. Dokunarak devam edebilirsin.";
+        });
+      } else {
+        startMotion();
+      }
+    }
+
+    function startMotion() {
+      window.addEventListener("devicemotion", motionHandler);
+    }
+
+    function motionHandler(e) {
+      if (ended) return;
+      const acc = e.accelerationIncludingGravity;
+      if (!acc) return;
+      const total = Math.sqrt(acc.x ** 2 + acc.y ** 2 + acc.z ** 2);
+      if (!blowCooldown && total > 15) handleBlow();
+    }
+
+    // Dokunma
+    window.addEventListener("click", () => {
+      if (!blowCooldown && !ended) handleBlow();
+    });
+
+    initMic();
+  </script>
+
+</body>
+</html>
