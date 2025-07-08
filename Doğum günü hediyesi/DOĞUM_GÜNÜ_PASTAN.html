@@ -199,6 +199,15 @@
   <audio id="puffSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_28b0fbc1ae.mp3"></audio>
 
   <script>
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(function(stream) {
+    // Mikrofon erişimi başarılı
+    })
+    .catch(function(err) {
+    // Kullanıcı izin vermedi veya hata oldu
+    });
+
     const flames = [
       document.getElementById('flame1'),
       document.getElementById('flame2'),
