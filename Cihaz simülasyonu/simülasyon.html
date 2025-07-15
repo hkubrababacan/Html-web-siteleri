@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cihaz Kontrol Paneli</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #bdd5ec;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .panel {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .panel button, .panel select, .panel input {
+      margin: 5px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .ac-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .kapat-btn {
+      background-color: #f44336;
+      color: white;
+    }
+    .cihazlar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+    .cihaz {
+      width: 200px;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background-color: #fff;
+      border-left: 6px solid gray;
+    }
+    .cihaz.acik {
+      border-left-color: green;
+      background-color: #eaffea;
+    }
+    .cihaz.kapali {
+      border-left-color: red;
+      background-color: #ffeaea;
+    }
+    .filter {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Cihaz Kontrol Paneli</h1>
+
+  <div class="panel">
+    <button class="ac-btn" onclick="tumunuAc()">Tümünü Aç</button>
+    <button class="kapat-btn" onclick="tumunuKapat()">Tümünü Kapat</button>
+
+    <div class="filter">
+      <label for="filtre">Tür Filtresi:</label>
+      <select id="filtre" onchange="filtrele()">
+        <option value="Hepsi">Hepsi</option>
+        <option value="Lamba">Lamba</option>
+        <option value="Fan">Fan</option>
+        <option value="Klima">Klima</option>
+        <option value="Televizyon">Televizyon</option>
+        <option value="Alarm">Alarm</option>
+        <option value="Acik">Sadece Açık</option>
+      </select>
+    </div>
+
+    <div class="filter">
+      <input type="text" id="yeniIsim" placeholder="Yeni cihaz ismi">
+      <select id="yeniTur">
+        <option value="Lamba">Lamba</option>
+        <option value="Fan">Fan</option>
+        <option value="Klima">Klima</option>
+        <option value="Televizyon">Televizyon</option>
+        <option value="Alarm">Alarm</option>
+      </select>
+      <button onclick="cihazEkle()">Yeni Cihaz Ekle</button>
+    </div>
+  </div>
+
+  <div class="cihazlar" id="cihazPaneli"></div>
+
+  <script>
+    let cihazlar = [
+      { isim: "lamba1", tur: "Lamba", durum: false },
+      { isim: "fan1", tur: "Fan", durum: false },
+      { isim: "klima1", tur: "Klima", durum: false },
+      { isim: "televizyon1", tur: "Televizyon", durum: false },
+      { isim: "alarm1", tur: "Alarm", durum: false },
+    ];
+
+    function guncelleGorunum() {
+      const filtre = document.getElementById("filtre").value;
+      const panel = document.getElementById("cihazPaneli");
+      panel.innerHTML = "";
+
+      cihazlar.forEach((cihaz, index) => {
+        const goster =
+          filtre === "Hepsi" ||
+          cihaz.tur === filtre ||
+          (filtre === "Acik" && cihaz.durum === true);
+
+        if (goster) {
+          const div = document.createElement("div");
+          div.className = "cihaz " + (cihaz.durum ? "acik" : "kapali");
+
+          div.innerHTML = `
+            <h3>${cihaz.isim}</h3>
+            <p><strong>Tür:</strong> ${cihaz.tur}</p>
+            <p><strong>Durum:</strong> <span>${cihaz.durum ? "Açık" : "Kapalı"}</span></p>
+            <button class="ac-btn">Aç</button>
+            <button class="kapat-btn">Kapat</button>
+          `;
+
+          const acBtn = div.querySelector(".ac-btn");
+          const kapatBtn = div.querySelector(".kapat-btn");
+          const durumSpan = div.querySelector("span");
+
+          acBtn.onclick = () => {
+            cihaz.durum = true;
+            guncelleGorunum();
+          };
+
+          kapatBtn.onclick = () => {
+            cihaz.durum = false;
+            guncelleGorunum();
+          };
+
+          panel.appendChild(div);
+        }
+      });
+    }
+
+    function tumunuAc() {
+      cihazlar.forEach(c => c.durum = true);
+      guncelleGorunum();
+    }
+
+    function tumunuKapat() {
+      cihazlar.forEach(c => c.durum = false);
+      guncelleGorunum();
+    }
+
+    function filtrele() {
+      guncelleGorunum();
+    }
+
+    function cihazEkle() {
+      const isim = document.getElementById("yeniIsim").value.trim();
+      const tur = document.getElementById("yeniTur").value;
+
+      if (!isim) {
+        alert("Lütfen cihaz ismi giriniz!");
+        return;
+      }
+
+      // Aynı isimde cihaz var mı kontrolü
+      if (cihazlar.some(c => c.isim === isim)) {
+        alert("Bu isimde bir cihaz zaten var!");
+        return;
+      }
+
+      cihazlar.push({ isim: isim, tur: tur, durum: false });
+      document.getElementById("yeniIsim").value = "";
+      guncelleGorunum();
+    }
+
+    // İlk yüklemede çağır
+    guncelleGorunum();
+  </script>
+
+</body>
+</html>
